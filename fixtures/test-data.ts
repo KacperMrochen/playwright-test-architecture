@@ -1,12 +1,15 @@
 import {
   test as base,
-  request,
+  expect,
+  request as playwrightRequest,
   type APIRequestContext,
   type BrowserContext,
   type Page,
 } from '@playwright/test';
 import { createAccount, deleteAccount } from '../api/account';
 
+/** The one definition of the target site. `playwright.config.ts` imports it
+ * for `use.baseURL`, so config and fixtures can't drift apart. */
 export const BASE_URL = 'https://automationexercise.com';
 
 /** Hosts a browser context may reach. Everything else is aborted — see
@@ -49,15 +52,57 @@ export type Account = {
   mobileNumber: string;
 };
 
+/** The `pta-` prefix marks an address as ours if a run is interrupted before
+ * teardown. */
+export function uniqueEmail(): string {
+  return `pta-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
+}
+
+/** The address every "unknown account" criterion is proved against:
+ * AC-01.6, AC-04.2, AC-04.4, AC-13.2, AC-22.2. Nothing ever registers it. */
+export const NEVER_REGISTERED_EMAIL = 'pta-never-registered@example.com';
+
+/** The catalog items the suite pins by id. Names and prices are site data
+ * recorded in docs/criteria/; the nightly drift run is what catches them
+ * moving. */
+export const PRODUCTS = {
+  blueTop: { id: 1, name: 'Blue Top', price: 'Rs. 500' },
+  menTshirt: { id: 2, name: 'Men Tshirt', price: 'Rs. 400' },
+} as const;
+
+/** The site writes every price as `Rs. 500`, in the API and on the page. */
+export const PRICE_FORMAT = /^Rs\. (\d+)$/;
+
+/** Prices are compared as arithmetic so a failure reports the sum rather
+ * than two strings. */
+export function rupees(price: string): number {
+  const amount = price.trim().match(PRICE_FORMAT)?.[1];
+  if (amount === undefined) throw new Error(`Not a price: "${price}"`);
+  return Number(amount);
+}
+
+const NON_EMPTY = expect.stringMatching(/\S/);
+
+/** A complete product, as AC-12.1 defines one. AC-15.3 requires search
+ * results in that same shape. */
+export const PRODUCT_SHAPE = {
+  id: expect.any(Number),
+  name: NON_EMPTY,
+  price: expect.stringMatching(PRICE_FORMAT),
+  brand: NON_EMPTY,
+  category: {
+    category: NON_EMPTY,
+    usertype: { usertype: NON_EMPTY },
+  },
+};
+
 /** A unique account per test. The site rejects a reused email, and a
  * logged-in account's cart lives on the server (FR-08), so sharing one
- * would leak state between tests. The `pta-` prefix marks ours if a run is
- * interrupted before teardown. */
+ * would leak state between tests. */
 export function newAccount(overrides: Partial<Account> = {}): Account {
-  const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return {
     name: 'PTA Tester',
-    email: `pta-${unique}@example.com`,
+    email: uniqueEmail(),
     password: 'Passw0rd!pta',
     title: 'Mr',
     birthDate: '1',
@@ -92,14 +137,14 @@ export const TEST_CARD = {
  * do this — it confirms credentials and issues nothing (AC-03.3) — so the
  * login form is posted directly, CSRF token and all. */
 export async function loginCookies(credentials: { email: string; password: string }) {
-  const api = await request.newContext({ baseURL: BASE_URL });
+  const session = await playwrightRequest.newContext({ baseURL: BASE_URL });
   try {
-    const loginPage = await api.get('/login');
+    const loginPage = await session.get('/login');
     const html = await loginPage.text();
     const csrf = html.match(/name="csrfmiddlewaretoken"\s+value="([^"]+)"/)?.[1];
     if (!csrf) throw new Error('No CSRF token on /login — has the form changed?');
 
-    await api.post('/login', {
+    const response = await session.post('/login', {
       form: {
         csrfmiddlewaretoken: csrf,
         email: credentials.email,
@@ -108,22 +153,32 @@ export async function loginCookies(credentials: { email: string; password: strin
       headers: { Referer: `${BASE_URL}/login` },
     });
 
-    const { cookies } = await api.storageState();
+    // A successful login redirects to the home page; a failure re-renders
+    // /login with the error. A session cookie alone would not tell them
+    // apart if the site ever issued one to anonymous visitors.
+    const landedOn = new URL(response.url()).pathname;
+    if (landedOn !== '/') {
+      throw new Error(
+        `Login failed for ${credentials.email}: POST /login landed on ${landedOn} (HTTP ${response.status()})`,
+      );
+    }
+
+    const { cookies } = await session.storageState();
     if (!cookies.some((cookie) => cookie.name === 'sessionid')) {
       throw new Error(`Login did not produce a session for ${credentials.email}`);
     }
     return cookies;
   } finally {
-    await api.dispose();
+    await session.dispose();
   }
 }
 
 /** Best-effort cleanup. 404 means the account is already gone — a test may
  * have deleted it, or registration may have failed — and a cleanup problem
  * must never turn a passing behavior red. */
-async function removeAccount(api: APIRequestContext, credentials: { email: string; password: string }) {
+async function removeAccount(request: APIRequestContext, credentials: { email: string; password: string }) {
   try {
-    const result = await deleteAccount(api, credentials);
+    const result = await deleteAccount(request, credentials);
     if (result.responseCode !== 200 && result.responseCode !== 404) {
       console.warn(`cleanup: ${credentials.email} not deleted (${result.responseCode})`);
     }
@@ -133,8 +188,6 @@ async function removeAccount(api: APIRequestContext, credentials: { email: strin
 }
 
 type Fixtures = {
-  /** Request context against the site, for API calls and setup. */
-  api: APIRequestContext;
   /** An account that already exists, deleted after the test. */
   account: Account;
   /** Account data that does NOT exist yet, for registration tests.
@@ -145,36 +198,29 @@ type Fixtures = {
 };
 
 export const test = base.extend<Fixtures>({
-  // Third-party blocking, applied once for every browser-based test.
   context: async ({ context }, use) => {
     await blockThirdParty(context);
     await use(context);
   },
 
-  api: async ({ playwright }, use) => {
-    const api = await playwright.request.newContext({ baseURL: BASE_URL });
-    await use(api);
-    await api.dispose();
-  },
-
-  account: async ({ api }, use) => {
+  account: async ({ request }, use) => {
     const account = newAccount();
-    const created = await createAccount(api, account);
+    const created = await createAccount(request, account);
     if (created.responseCode !== 201) {
       throw new Error(`Could not create ${account.email}: ${JSON.stringify(created)}`);
     }
 
     await use(account);
 
-    await removeAccount(api, account);
+    await removeAccount(request, account);
   },
 
-  signupData: async ({ api }, use) => {
+  signupData: async ({ request }, use) => {
     const account = newAccount();
 
     await use(account);
 
-    await removeAccount(api, account);
+    await removeAccount(request, account);
   },
 
   loggedInPage: async ({ context, account }, use) => {
@@ -185,4 +231,4 @@ export const test = base.extend<Fixtures>({
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect };

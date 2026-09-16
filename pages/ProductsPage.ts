@@ -1,5 +1,8 @@
 import type { Locator, Page } from '@playwright/test';
 
+/** Where a listing link led, and the name the resulting heading uses. */
+export type Destination = { path: string; name: string };
+
 /** `/products`, plus the category and brand listings, which reuse the same
  * product-card markup and the same add-to-cart control (AC-06.5). */
 export class ProductsPage {
@@ -69,14 +72,28 @@ export class ProductsPage {
     return Number(id);
   }
 
-  async openCategory(usertype: 'Women' | 'Men' | 'Kids') {
+  /** Reports the destination so the caller can assert the exact URL and
+   * heading, rather than a pattern any category would satisfy. */
+  async openCategory(usertype: 'Women' | 'Men' | 'Kids'): Promise<Destination> {
     await this.page.locator(`a[href="#${usertype}"]`).click();
     const firstCategory = this.page.locator(`#${usertype} a[href*="/category_products/"]`).first();
     await firstCategory.waitFor({ state: 'visible' });
+    const path = await firstCategory.getAttribute('href');
+    // `textContent`, not `innerText`: the sidebar uppercases these names
+    // with CSS, which `innerText` honours and the heading does not.
+    const name = (await firstCategory.textContent())?.trim();
+    if (!path || !name) throw new Error(`No category link under ${usertype}`);
     await firstCategory.click();
+    return { path, name };
   }
 
-  async openFirstBrand() {
-    await this.page.locator('.brands-name a[href*="/brand_products/"]').first().click();
+  /** The name comes from the path, not the link text: the link also
+   * carries a product count (`(6)Polo`). */
+  async openFirstBrand(): Promise<Destination> {
+    const firstBrand = this.page.locator('.brands-name a[href*="/brand_products/"]').first();
+    const path = await firstBrand.getAttribute('href');
+    if (!path) throw new Error('No brand link on this page');
+    await firstBrand.click();
+    return { path, name: path.split('/').pop() as string };
   }
 }

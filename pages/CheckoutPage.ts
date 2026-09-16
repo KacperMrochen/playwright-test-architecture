@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
-import { TEST_CARD } from '../fixtures/test-data';
+import { TEST_CARD, rupees } from '../fixtures/test-data';
 
 /** `/checkout` and `/payment`: address details, order review, the comment
  * field (AC-10.7), the card form and the confirmation. */
@@ -7,6 +7,7 @@ export class CheckoutPage {
   readonly deliveryAddress: Locator;
   readonly billingAddress: Locator;
   readonly reviewRows: Locator;
+  readonly productRows: Locator;
   readonly totalAmount: Locator;
   readonly comment: Locator;
   readonly placeOrder: Locator;
@@ -25,9 +26,12 @@ export class CheckoutPage {
     this.deliveryAddress = page.locator('#address_delivery');
     this.billingAddress = page.locator('#address_invoice');
     this.reviewRows = page.locator('#cart_info tbody tr');
+    // The review table's last row is the order total, not a product, so the
+    // rows worth summing are the ones keyed by product id.
+    this.productRows = page.locator('#cart_info tbody tr[id^="product-"]');
     this.totalAmount = page.locator('.cart_total_price').last();
     this.comment = page.locator('textarea[name="message"]');
-    this.placeOrder = page.getByText('Place Order');
+    this.placeOrder = page.getByRole('link', { name: 'Place Order' });
 
     this.nameOnCard = page.locator('[data-qa="name-on-card"]');
     this.cardNumber = page.locator('[data-qa="card-number"]');
@@ -40,7 +44,11 @@ export class CheckoutPage {
     this.downloadInvoice = page.getByRole('link', { name: 'Download Invoice' });
   }
 
-  /** The address block as lines, for comparing against the account. */
+  async lineTotals(): Promise<number[]> {
+    const totals = await this.productRows.locator('.cart_total_price').allInnerTexts();
+    return totals.map(rupees);
+  }
+
   async deliveryAddressLines(): Promise<string[]> {
     const text = await this.deliveryAddress.innerText();
     return text.split('\n').map((line) => line.trim()).filter(Boolean);

@@ -19,7 +19,10 @@ export class ProductDetailPage {
   constructor(private readonly page: Page) {
     this.information = page.locator('.product-information');
     this.name = this.information.locator('h2');
-    this.price = this.information.locator('span span').first();
+    // No id, class or role on the price element — but it is the only thing
+    // in the block whose whole text is a price, which beats reaching for it
+    // by DOM structure (TESTING.md, Selectors).
+    this.price = this.information.getByText(/^Rs\. \d+$/);
     this.quantity = page.locator('#quantity');
     this.addToCartButton = page.getByRole('button', { name: 'Add to cart' });
 

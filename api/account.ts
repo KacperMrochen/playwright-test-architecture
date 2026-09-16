@@ -27,36 +27,36 @@ function accountForm(account: Account): Record<string, string> {
   };
 }
 
-export async function createAccount(api: APIRequestContext, account: Account): Promise<ApiResult> {
-  const response = await api.post('/api/createAccount', { form: accountForm(account) });
+export async function createAccount(request: APIRequestContext, account: Account): Promise<ApiResult> {
+  const response = await request.post('/api/createAccount', { form: accountForm(account) });
   return response.json();
 }
 
 export async function createAccountWith(
-  api: APIRequestContext,
+  request: APIRequestContext,
   form: Record<string, string>,
 ): Promise<ApiResult> {
-  const response = await api.post('/api/createAccount', { form });
+  const response = await request.post('/api/createAccount', { form });
   return response.json();
 }
 
-export async function updateAccount(api: APIRequestContext, account: Account): Promise<ApiResult> {
-  const response = await api.put('/api/updateAccount', { form: accountForm(account) });
+export async function updateAccount(request: APIRequestContext, account: Account): Promise<ApiResult> {
+  const response = await request.put('/api/updateAccount', { form: accountForm(account) });
   return response.json();
 }
 
 export async function deleteAccount(
-  api: APIRequestContext,
+  request: APIRequestContext,
   credentials: { email: string; password: string },
 ): Promise<ApiResult> {
-  const response = await api.delete('/api/deleteAccount', { form: credentials });
+  const response = await request.delete('/api/deleteAccount', { form: credentials });
   return response.json();
 }
 
 export async function getUserDetails(
-  api: APIRequestContext,
+  request: APIRequestContext,
   email: string,
 ): Promise<UserDetailsResult> {
-  const response = await api.get('/api/getUserDetailByEmail', { params: { email } });
+  const response = await request.get('/api/getUserDetailByEmail', { params: { email } });
   return response.json();
 }

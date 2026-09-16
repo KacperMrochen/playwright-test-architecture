@@ -1,4 +1,4 @@
-import { test, expect, newAccount } from '../../fixtures/test-data';
+import { test, expect, newAccount, NEVER_REGISTERED_EMAIL } from '../../fixtures/test-data';
 import {
   createAccount,
   createAccountWith,
@@ -8,15 +8,15 @@ import {
 } from '../../api/account';
 import { verifyLogin } from '../../api/auth';
 
-test('AC-01.4 creates an account', { tag: '@smoke' }, async ({ api, signupData }) => {
-  const body = await createAccount(api, signupData);
+test('AC-01.4 creates an account', { tag: '@smoke' }, async ({ request, signupData }) => {
+  const body = await createAccount(request, signupData);
 
   expect(body.responseCode).toBe(201);
   expect(body.message).toBe('User created!');
 });
 
-test('AC-01.5 reads the account details back', { tag: '@regression' }, async ({ api, account }) => {
-  const body = await getUserDetails(api, account.email);
+test('AC-01.5 reads the account details back', { tag: '@regression' }, async ({ request, account }) => {
+  const body = await getUserDetails(request, account.email);
 
   expect(body.responseCode).toBe(200);
   // The response renames several fields it was given.
@@ -38,34 +38,34 @@ test('AC-01.5 reads the account details back', { tag: '@regression' }, async ({ 
   });
 });
 
-test('AC-01.6 reports 404 for an unknown email', { tag: '@regression' }, async ({ api }) => {
-  const body = await getUserDetails(api, 'pta-never-registered@example.com');
+test('AC-01.6 reports 404 for an unknown email', { tag: '@regression' }, async ({ request }) => {
+  const body = await getUserDetails(request, NEVER_REGISTERED_EMAIL);
 
   expect(body.responseCode).toBe(404);
   expect(body.message).toBe('Account not found with this email, try another email!');
 });
 
-test('AC-02.2 rejects an email already in use', { tag: '@regression' }, async ({ api, account }) => {
+test('AC-02.2 rejects an email already in use', { tag: '@regression' }, async ({ request, account }) => {
   const duplicate = newAccount({ email: account.email });
 
-  const body = await createAccount(api, duplicate);
+  const body = await createAccount(request, duplicate);
 
   expect(body.responseCode).toBe(400);
   expect(body.message).toBe('Email already exists!');
 });
 
-test('AC-14.4 reports 400 when a field is missing', { tag: '@regression' }, async ({ api }) => {
-  const body = await createAccountWith(api, { email: 'pta-incomplete@example.com' });
+test('AC-14.4 reports 400 when a field is missing', { tag: '@regression' }, async ({ request }) => {
+  const body = await createAccountWith(request, { email: 'pta-incomplete@example.com' });
 
   expect(body.responseCode).toBe(400);
   expect(body.message).toBe('Bad request, name parameter is missing in POST request.');
 });
 
-test('AC-13.1 deletes an account and its sessions', { tag: '@regression' }, async ({ api, signupData }) => {
-  const created = await createAccount(api, signupData);
+test('AC-13.1 deletes an account and stops its credentials verifying', { tag: '@regression' }, async ({ request, signupData }) => {
+  const created = await createAccount(request, signupData);
   expect(created.responseCode).toBe(201);
 
-  const deleted = await deleteAccount(api, {
+  const deleted = await deleteAccount(request, {
     email: signupData.email,
     password: signupData.password,
   });
@@ -73,16 +73,16 @@ test('AC-13.1 deletes an account and its sessions', { tag: '@regression' }, asyn
   expect(deleted.responseCode).toBe(200);
   expect(deleted.message).toBe('Account deleted!');
 
-  const afterDelete = await verifyLogin(api, {
+  const afterDelete = await verifyLogin(request, {
     email: signupData.email,
     password: signupData.password,
   });
   expect(afterDelete.responseCode).toBe(404);
 });
 
-test('AC-13.2 reports 404 when deleting an unknown account', { tag: '@regression' }, async ({ api }) => {
-  const body = await deleteAccount(api, {
-    email: 'pta-never-registered@example.com',
+test('AC-13.2 reports 404 when deleting an unknown account', { tag: '@regression' }, async ({ request }) => {
+  const body = await deleteAccount(request, {
+    email: NEVER_REGISTERED_EMAIL,
     password: 'whatever',
   });
 
@@ -90,30 +90,30 @@ test('AC-13.2 reports 404 when deleting an unknown account', { tag: '@regression
   expect(body.message).toBe('Account not found!');
 });
 
-test('AC-13.3 refuses a wrong password and keeps the account', { tag: '@regression' }, async ({ api, account }) => {
-  const body = await deleteAccount(api, { email: account.email, password: 'not-the-password' });
+test('AC-13.3 refuses a wrong password and keeps the account', { tag: '@regression' }, async ({ request, account }) => {
+  const body = await deleteAccount(request, { email: account.email, password: 'not-the-password' });
 
   // Reported as "not found", which is why cleanup can't read 404 as proof
   // the account is gone.
   expect(body.responseCode).toBe(404);
   expect(body.message).toBe('Account not found!');
 
-  const stillThere = await verifyLogin(api, {
+  const stillThere = await verifyLogin(request, {
     email: account.email,
     password: account.password,
   });
   expect(stillThere.responseCode).toBe(200);
 });
 
-test('AC-22.1 updates the stored details', { tag: '@regression' }, async ({ api, account }) => {
+test('AC-22.1 updates the stored details', { tag: '@regression' }, async ({ request, account }) => {
   const changed = { ...account, firstName: 'Updated', city: 'Vancouver', company: 'New Company' };
 
-  const body = await updateAccount(api, changed);
+  const body = await updateAccount(request, changed);
 
   expect(body.responseCode).toBe(200);
   expect(body.message).toBe('User updated!');
 
-  const details = await getUserDetails(api, account.email);
+  const details = await getUserDetails(request, account.email);
   expect(details.user).toMatchObject({
     first_name: 'Updated',
     city: 'Vancouver',
@@ -121,15 +121,15 @@ test('AC-22.1 updates the stored details', { tag: '@regression' }, async ({ api,
   });
 });
 
-test('AC-22.2 reports 404 when updating an unknown account', { tag: '@regression' }, async ({ api }) => {
-  const body = await updateAccount(api, newAccount({ email: 'pta-never-registered@example.com' }));
+test('AC-22.2 reports 404 when updating an unknown account', { tag: '@regression' }, async ({ request }) => {
+  const body = await updateAccount(request, newAccount({ email: NEVER_REGISTERED_EMAIL }));
 
   expect(body.responseCode).toBe(404);
   expect(body.message).toBe('Account not found!');
 });
 
-test('AC-22.3 refuses a wrong password and changes nothing', { tag: '@regression' }, async ({ api, account }) => {
-  const body = await updateAccount(api, {
+test('AC-22.3 refuses a wrong password and changes nothing', { tag: '@regression' }, async ({ request, account }) => {
+  const body = await updateAccount(request, {
     ...account,
     password: 'not-the-password',
     city: 'Nowhere',
@@ -138,6 +138,6 @@ test('AC-22.3 refuses a wrong password and changes nothing', { tag: '@regression
   expect(body.responseCode).toBe(404);
   expect(body.message).toBe('Account not found!');
 
-  const details = await getUserDetails(api, account.email);
+  const details = await getUserDetails(request, account.email);
   expect(details.user.city).toBe(account.city);
 });

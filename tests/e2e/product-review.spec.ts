@@ -1,10 +1,10 @@
-import { test, expect, newAccount } from '../../fixtures/test-data';
+import { test, expect, PRODUCTS, uniqueEmail } from '../../fixtures/test-data';
 import { ProductDetailPage } from '../../pages/ProductDetailPage';
 
 test('AC-21.1 accepts a product review', { tag: '@regression' }, async ({ page }) => {
   const detail = new ProductDetailPage(page);
 
-  await detail.goto(2);
+  await detail.goto(PRODUCTS.menTshirt.id);
 
   await expect(detail.reviewTab).toContainText('Write Your Review');
 
@@ -12,7 +12,7 @@ test('AC-21.1 accepts a product review', { tag: '@regression' }, async ({ page }
   // the whole of the observable behavior.
   await detail.submitReview({
     name: 'PTA Tester',
-    email: newAccount().email,
+    email: uniqueEmail(),
     text: 'Submitted by an automated test suite.',
   });
 

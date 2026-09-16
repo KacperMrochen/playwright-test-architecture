@@ -1,24 +1,21 @@
-import { test, expect } from '../../fixtures/test-data';
+import { test, expect, PRODUCT_SHAPE } from '../../fixtures/test-data';
 import { getProducts, postProducts } from '../../api/products';
 
-test('AC-12.1 returns the catalog with complete products', { tag: '@smoke' }, async ({ api }) => {
-  const body = await getProducts(api);
+test('AC-12.1 returns the catalog with complete products', { tag: '@smoke' }, async ({ request }) => {
+  const body = await getProducts(request);
 
   expect(body.responseCode).toBe(200);
   expect(body.products.length).toBeGreaterThan(0);
 
+  // Soft, so one run names every malformed product in a 300-item catalog
+  // instead of stopping at the first.
   for (const product of body.products) {
-    expect(typeof product.id, `product ${product.name}`).toBe('number');
-    expect(product.name).toBeTruthy();
-    expect(product.price).toMatch(/^Rs\. \d+$/);
-    expect(product.brand).toBeTruthy();
-    expect(product.category.category).toBeTruthy();
-    expect(product.category.usertype.usertype).toBeTruthy();
+    expect.soft(product, `product ${product.id}`).toMatchObject(PRODUCT_SHAPE);
   }
 });
 
-test('AC-14.1 reports 405 for POST on the catalog', { tag: '@regression' }, async ({ api }) => {
-  const body = await postProducts(api);
+test('AC-14.1 reports 405 for POST on the catalog', { tag: '@regression' }, async ({ request }) => {
+  const body = await postProducts(request);
 
   expect(body.responseCode).toBe(405);
   expect(body.message).toBe('This request method is not supported.');

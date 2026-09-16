@@ -245,6 +245,18 @@ coverage — see Pipeline below for the command per group.
   [ADR 0001](../adr/0001-third-party-network-isolation.md)'s network
   isolation matters: it removes the flake retries would otherwise be
   masking.
+- **Timeouts.** 60s per test, against Playwright's 30s default. The target
+  is a third-party site on the public internet, not a build we control:
+  the register → checkout → pay journey measures ~25s on a healthy
+  Chromium run, and one slow spell on automationexercise.com pushed
+  ordinary page loads past 30s on every engine at once — including one
+  that timed out before a test body had even started. A single budget in
+  `playwright.config.ts` absorbs that variance while still capping a test
+  that is genuinely stuck. A per-test `test.slow()` was rejected: the
+  constraint comes from the environment, not from one test, so raising it
+  in one test body would leave every other test on a budget the site
+  already exceeds — and it would put an operational number next to
+  behavioral assertions, where it reads as a property of the behavior.
 
 ## Detecting site drift
 

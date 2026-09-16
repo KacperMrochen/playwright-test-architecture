@@ -14,6 +14,8 @@ export class CartPage {
   constructor(private readonly page: Page) {
     this.rows = page.locator('#cart_info_table tbody tr');
     this.emptyMessage = page.locator('#empty_cart');
+    // An `<a>` with no `href`, so it has no link role to target — located
+    // by its text for want of anything better.
     this.proceedToCheckout = page.getByText('Proceed To Checkout');
 
     this.checkoutModal = page.locator('#checkoutModal');
