@@ -1,0 +1,32 @@
+{
+  "name": "playwright-test-architecture",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:smoke:pr": "playwright test --project=api --project=e2e-chromium --project=e2e-mobile-ios --grep @smoke",
+    "test:regression:pr": "playwright test --project=api --project=e2e-chromium --project=e2e-mobile-ios",
+    "test:a11y": "playwright test --project=e2e-chromium --grep @a11y"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KacperMrochen/playwright-test-architecture.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/KacperMrochen/playwright-test-architecture/issues"
+  },
+  "homepage": "https://github.com/KacperMrochen/playwright-test-architecture#readme",
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "^22.20.3"
+  }
+}
