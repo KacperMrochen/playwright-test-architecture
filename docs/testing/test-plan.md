@@ -37,14 +37,14 @@ inside another test inherit that test's tag and say so.
 | AC-02.1 | Signup form rejects an existing email with a message | e2e | QA | `e2e/auth.spec.ts` | `@regression` |
 | AC-02.2 | `createAccount` rejects an existing email (400) | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-03.1 | Login form authenticates and updates the navigation | e2e | QA | `e2e/auth.spec.ts` — "logs in and out" | `@smoke` |
-| AC-03.2 | An API-created account can log in through the UI | e2e | QA | `e2e/auth.spec.ts` — same test as AC-03.1, whose account is API-created | `@smoke` |
+| AC-03.2 | An API-created account can log in through the UI | e2e | QA | `e2e/auth.spec.ts` — step inside "AC-03.1 logs in and out", whose account is API-created | `@smoke` |
 | AC-03.3 | `verifyLogin` confirms valid credentials (no session) | integration | dev | `api/auth.spec.ts` | `@smoke` |
 | AC-04.1 | Wrong password shows the incorrect-credentials message | e2e | QA | `e2e/auth.spec.ts` | `@regression` |
 | AC-04.2 | Unknown email shows the identical message | e2e | QA | `e2e/auth.spec.ts` | `@regression` |
 | AC-04.3 | `verifyLogin` returns 404 for a wrong password | integration | dev | `api/auth.spec.ts` | `@regression` |
 | AC-04.4 | `verifyLogin` returns 404 for an unknown email | integration | dev | `api/auth.spec.ts` | `@regression` |
 | AC-05.1 | Logout ends the session and restores Signup / Login | e2e | QA | `e2e/auth.spec.ts` — closing step of "logs in and out" | `@smoke` |
-| AC-05.2 | Logging out leaves the account's other sessions alone | e2e | QA | `e2e/auth.spec.ts` — "logout only ends its own session" | `@regression` |
+| AC-05.2 | Logging out leaves the account's other sessions alone | e2e | QA | `e2e/auth.spec.ts` — "AC-05.2 logging out leaves another session alone" | `@regression` |
 | AC-06.1 | Add to cart confirms with a modal | e2e | QA | `e2e/cart.spec.ts` (also exercised by the order journey) | `@regression` |
 | AC-06.2 | Cart lists each product with price, quantity, total | e2e | QA | `e2e/cart.spec.ts` (also exercised by the order journey) | `@regression` |
 | AC-06.3 | Adding the same product again increments its quantity | e2e | QA | `e2e/cart.spec.ts` | `@regression` |
@@ -52,7 +52,7 @@ inside another test inherit that test's tag and say so.
 | AC-06.6 | A cart row's quantity can't be edited in the cart | e2e | QA | `e2e/cart.spec.ts` | `@regression` |
 | AC-07.1 | Deleting a row removes it without a navigation | e2e | QA | `e2e/cart.spec.ts` | `@regression` |
 | AC-07.2 | An empty cart shows the empty-cart message | e2e | QA | `e2e/cart.spec.ts` | `@regression` |
-| AC-08.1 | The account's cart appears in a separate browser session | e2e | QA | `e2e/cart.spec.ts` — "cart follows the account" | `@regression` |
+| AC-08.1 | The account's cart appears in a separate browser session | e2e | QA | `e2e/cart.spec.ts` — "AC-08.1 shows the cart in another browser session" | `@regression` |
 | AC-08.2 | A logged-out cart merges into the account at login | e2e | QA | `e2e/checkout.spec.ts` — order journey (step) | `@smoke` |
 | AC-09.1 | Checkout prompts a logged-out visitor to register or log in | e2e | QA | `e2e/checkout.spec.ts` — order journey (step) | `@smoke` |
 | AC-10.1 | Checkout shows address details and order review | e2e | QA | `e2e/checkout.spec.ts` — order journey (step) | `@smoke` |
@@ -64,7 +64,7 @@ inside another test inherit that test's tag and say so.
 | AC-10.7 | Checkout offers an order comment field | e2e | QA | `e2e/checkout.spec.ts` — order journey (step) | `@smoke` |
 | AC-11.1 | The invoice downloads as text naming buyer and total | e2e | QA | `e2e/checkout.spec.ts` — "downloads the invoice" | `@regression` |
 | AC-12.1 | `productsList` returns the catalog with complete products | integration | dev | `api/products.spec.ts` | `@smoke` |
-| AC-13.1 | `deleteAccount` removes the account and its sessions | integration | dev | `api/account.spec.ts` | `@regression` |
+| AC-13.1 | `deleteAccount` removes the account; its credentials stop verifying | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-13.2 | `deleteAccount` returns 404 for an unknown email | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-13.3 | `deleteAccount` refuses a wrong password as "not found" | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-14.1 | `POST /api/productsList` reports 405 in the body | integration | dev | `api/products.spec.ts` | `@regression` |
@@ -83,9 +83,9 @@ inside another test inherit that test's tag and say so.
 | AC-16.2 | A category opens its filtered page | e2e | QA | `e2e/catalog.spec.ts` — same test | `@regression` |
 | AC-17.1 | A brand opens its filtered page | e2e | QA | `e2e/catalog.spec.ts` — "browses by brand" | `@regression` |
 | AC-17.2 | `brandsList` returns the brands | integration | dev | `api/brands.spec.ts` | `@regression` |
-| AC-18.1 | The detail page shows the product's full information | e2e | QA | `e2e/catalog.spec.ts` — "shows product details" | `@regression` |
+| AC-18.1 | The detail page shows the product's full information | e2e | QA | `e2e/catalog.spec.ts` — "AC-18.1 shows a product's details" | `@regression` |
 | AC-06.5 | Every listing uses the same add-to-cart control | e2e | QA | `e2e/cart.spec.ts` — "uses the same add-to-cart control on every listing" | `@regression` |
-| AC-19.1 | Subscribing from the home page confirms success | e2e | QA | `e2e/account.spec.ts` — "subscribes to the newsletter" | `@regression` |
+| AC-19.1 | Subscribing from the home page confirms success | e2e | QA | `e2e/account.spec.ts` — "AC-19.1 subscribes from the home page" | `@regression` |
 | AC-19.2 | The cart page's form is the same component | e2e | QA | `e2e/account.spec.ts` — same test (step) | `@regression` |
 | AC-20.1 | The contact form offers its fields | e2e | QA | `e2e/contact.spec.ts` | `@regression` |
 | AC-20.2 | Submitting raises a confirm dialog that must be accepted | e2e | QA | `e2e/contact.spec.ts` | `@regression` |
