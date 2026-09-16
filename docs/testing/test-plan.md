@@ -213,8 +213,19 @@ test follows in [`TESTING.md`](../../TESTING.md#test-data).
 
 ## Manual and untested
 
-- TC07 (Test Cases page), TC25, TC26 (scroll behavior) — manual only, static
-  content or cosmetic behavior with no business risk.
+Manual doesn't mean forgotten: each check below has a trigger, an owner, a
+timebox and a run log in [`manual-checks.md`](./manual-checks.md), and the
+rule deciding what stays manual is in
+[`test-strategy.md`](./test-strategy.md#what-we-dont-automate).
+
+- TC07 (Test Cases page), TC25, TC26 (scroll behavior) — manual only
+  (MC-01, MC-02): static content or cosmetic behavior with no business
+  risk, and scroll assertions would flake across engines and devices.
+- Ads, layout shift and the consent dialog (MC-03), and real mobile
+  devices (MC-04) — invisible to the suite by design, since
+  [ADR 0001](../adr/0001-third-party-network-isolation.md) blocks
+  third-party requests and Playwright's device presets aren't real
+  hardware.
 - The Contact Us file upload — optional in the form, and the site never
   shows the file back, so there's nothing to assert beyond the same
   success message AC-20.3 already covers.

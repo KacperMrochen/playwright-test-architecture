@@ -121,7 +121,8 @@ search, subscription, contact form, reviews, the remaining endpoints).
 - The Contact Us file upload — optional in the form, and an upload adds
   a fixture file plus a code path the site never shows back.
 - The scroll-to-top button and the Test Cases page (the site's TC07, TC25,
-  TC26) — cosmetic or static, no business risk. Listed in the test plan
-  as manual.
+  TC26) — cosmetic or static, no business risk. Checked by hand instead,
+  on a stated trigger and cadence
+  ([`manual-checks.md`](../testing/manual-checks.md)).
 
 ## Open questions

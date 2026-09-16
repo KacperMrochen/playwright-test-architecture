@@ -276,6 +276,70 @@ coverage — see Pipeline below for the command per group.
   already exceeds — and it would put an operational number next to
   behavioral assertions, where it reads as a property of the behavior.
 
+## What we don't automate
+
+A behavior earns an automated test by risk, not by being automatable.
+Every test costs writing, running on up to six projects, diagnosis when it
+fails and maintenance when the site moves — so the default is not "automate
+unless it's hard".
+
+A behavior stays manual when any of these holds:
+
+- **The risk is cosmetic.** If a visitor can complete their goal anyway, a
+  broken detail is worth noticing, not gating merges on.
+- **The assertion would be less stable than the behavior.** Scroll
+  position, animation timing and layout shift differ per engine and device
+  preset, so the test flakes in exactly the projects that would run it.
+  A flaky test is worse than no test: it trains people to ignore red.
+- **The check proves nothing about the product.** A page that renders is
+  not a behavior anyone depends on, however cheap the assertion.
+- **We deliberately hid it from ourselves.** Blocking third-party
+  requests ([ADR 0001](../adr/0001-third-party-network-isolation.md))
+  makes the suite stable and blind to ads, layout shift and the consent
+  dialog at once. Synthetic accounts
+  ([ADR 0002](../adr/0002-test-account-strategy.md)) do the same for
+  anything a long-lived, real account would reveal.
+- **The infrastructure doesn't exist.** Real devices, as opposed to
+  device presets, need a farm this project doesn't have.
+
+The last two are the ones worth stating out loud: they're gaps our own
+decisions created, and a strategy that lists only what it automates
+quietly implies they don't exist.
+
+What's manual isn't left to memory — each check has a trigger, an owner, a
+timebox and a run log in
+[`manual-checks.md`](./manual-checks.md), plus the conditions that would
+promote it into the suite. A gap written down is a decision; a gap left
+out is an accident.
+
+### Automating it isn't the same as running it everywhere
+
+"Automate or not" is the first decision; "how widely does it run" is a
+second one, and skipping it is how suites quietly get slow. A test that
+exists doesn't earn all six projects, and running everything everywhere
+would multiply both CI time and the accounts this suite creates against a
+third-party site.
+
+A test runs beyond Chromium only when the risk it covers is
+engine-specific: rendering, layout, touch input, or a browser API. Cart
+arithmetic, an error message and an HTTP contract behave identically in
+Firefox and WebKit, so proving them five more times buys nothing:
+
+| Scope | What runs there | Why |
+|---|---|---|
+| `api` only | Every API contract check | No browser is involved at all |
+| Chromium only | The whole `@regression` set | One engine, deep coverage, cheapest to run at volume |
+| The three gate projects | `@smoke`, on every PR update | Chromium plus one project that is both a second engine and a mobile viewport |
+| All six | `@smoke`, nightly | Engine differences are the site's property, so they're drift detection, not change validation |
+
+The lever for an individual test is its tag, and the test plan's
+[redundant coverage](./test-plan.md#redundant-coverage) section records
+the one case where a test kept its assertions but lost its breadth: the
+cart test was **demoted** from `@smoke` to `@regression` once the order
+journey proved its core on every engine. Its remaining checks — quantity
+handling, removal, the empty cart — now run on Chromium alone. That's a
+stated cost, not an oversight.
+
 ## Detecting site drift
 
 Testing an app we don't own inverts the usual assumption about a failing

@@ -12,6 +12,7 @@ layer, how often, and what each decision costs.
 | [`docs/criteria/`](docs/criteria/README.md) | How the site behaves — 22 requirements, 66 criteria, each verified against the live site |
 | [`docs/testing/test-plan.md`](docs/testing/test-plan.md) | Which criterion is proven by which test, at which layer, in which pipeline stage |
 | [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md) | Framework, project layout, browser matrix, pipeline, environments |
+| [`docs/testing/manual-checks.md`](docs/testing/manual-checks.md) | What isn't automated, why, and how it gets checked instead |
 | [`TESTING.md`](TESTING.md) | The rules every individual test follows |
 | [`docs/adr/`](docs/adr/) | Decisions worth the argument they'd otherwise cause twice |
 
@@ -42,6 +43,12 @@ from that:
   test cases; building one test per case would duplicate coverage. The
   [test plan](docs/testing/test-plan.md#redundant-coverage) records which
   ones were folded, demoted or dropped, and why.
+- **Not everything is worth automating,** and the ones that aren't get a
+  trigger, an owner and a run log rather than silence — including the
+  risks this suite hides from itself, since blocking ads also blinds it to
+  ad-caused layout shift. See
+  [what we don't automate](docs/testing/test-strategy.md#what-we-dont-automate)
+  and [manual checks](docs/testing/manual-checks.md).
 - **Findings that changed the design**, all from driving the site by hand:
   a consent dialog that intercepts every click in some regions
   ([ADR 0001](docs/adr/0001-third-party-network-isolation.md)); a cart
