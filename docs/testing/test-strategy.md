@@ -69,34 +69,38 @@ rather than adding a second runner for a handful of utility tests.
 ```
 tests/
 ├── api/                   # `api` project — request fixture, no browser
-│   ├── products.spec.ts        (AC-12.1, AC-14.1)
+│   ├── account.spec.ts         (AC-01.4/5/6, AC-02.2, AC-13.x, AC-14.4, AC-22.x)
 │   ├── auth.spec.ts            (AC-03.3, AC-04.3/4, AC-14.2/3)
-│   ├── account.spec.ts         (AC-01.4/5, AC-02.2, AC-13.x, AC-14.4)
-│   ├── brands.spec.ts          (Phase 2)
-│   └── search.spec.ts          (Phase 2)
+│   ├── brands.spec.ts          (AC-14.5, AC-17.2)
+│   ├── products.spec.ts        (AC-12.1, AC-14.1)
+│   └── search.spec.ts          (AC-14.6/7, AC-15.3/5)
 └── e2e/                    # `e2e` project — browser-driven journeys
-    ├── auth.spec.ts             (AC-02.1, AC-03.1/2, AC-04.1/2, AC-05.1)
+    ├── account.spec.ts          (AC-19.x — subscription)
+    ├── auth.spec.ts             (AC-02.1, AC-03.1/2, AC-04.1/2, AC-05.x)
     ├── cart.spec.ts             (AC-06.x, AC-07.x, AC-08.1)
-    ├── checkout.spec.ts         (AC-08.2, AC-09.1, AC-10.x, AC-11.1)
-    ├── catalog.spec.ts          (Phase 2)
-    ├── account.spec.ts          (Phase 2 — subscription)
-    ├── contact.spec.ts          (Phase 2)
-    └── product-review.spec.ts   (Phase 2)
-pages/                      # Page Object Model, one file per page
-├── LoginPage.ts
-├── SignupPage.ts
-├── ProductsPage.ts
-├── ProductDetailPage.ts
+    ├── catalog.spec.ts          (AC-15.1/2/4, AC-16.x, AC-17.1, AC-18.1)
+    ├── checkout.spec.ts         (AC-01.1/2/3, AC-08.2, AC-09.1, AC-10.x, AC-11.1)
+    ├── contact.spec.ts          (AC-20.x)
+    └── product-review.spec.ts   (AC-21.1)
+pages/                      # Page Object Model, one file per page or shared component
 ├── CartPage.ts
 ├── CheckoutPage.ts
-└── ContactUsPage.ts
+├── ContactUsPage.ts
+├── Header.ts               # the navigation bar every page shares
+├── HomePage.ts             # includes the footer subscription form
+├── LoginPage.ts
+├── ProductDetailPage.ts
+├── ProductsPage.ts         # also the category and brand listings
+└── SignupPage.ts
 api/                        # typed HTTP client wrappers, one per resource
+├── account.ts
+├── auth.ts
+├── brands.ts
 ├── products.ts
 ├── search.ts
-├── auth.ts
-└── account.ts
-fixtures/                   # custom Playwright fixtures (unique test accounts, merged page+api fixtures)
-└── test-data.ts
+└── types.ts                # response shapes the clients share
+fixtures/                   # custom Playwright fixtures and shared test data
+└── test-data.ts            # per-test accounts, HTTP login, third-party blocking
 playwright.config.ts        # `api` and `e2e` projects via testDir; tags live on individual tests, not on the project
 TESTING.md                  # rules every individual test follows
 docs/
@@ -114,7 +118,7 @@ docs/
 Two decisions here, both reversible but worth stating:
 
 - **Top-level split is by Playwright project (`tests/api/` vs. `tests/e2e/`), not by feature.** The `api` and `e2e` projects need different `testDir`s in `playwright.config.ts` since they use fundamentally different fixtures (`request` vs. a browser context) — a shared directory would need `testMatch` globs to separate them for no benefit.
-- **Within each project, spec files are grouped by feature/page area, not 1:1 per requirement or per site case.** The redundant-coverage folding already decided only works cleanly if the file boundary is the feature — and the site's own numbering could change without notice (see the test plan's Risks section), so naming files after it would be fragile. Tests trace to criteria through their titles, not through file names. `pages/` and `api/` sit outside `tests/` entirely because a page object or client wrapper is reused across multiple spec files (`LoginPage` is used in both `auth.spec.ts` and any checkout spec that logs in first as setup) — nesting it under one test directory would misrepresent that reuse.
+- **Within each project, spec files are grouped by feature/page area, not 1:1 per requirement or per site case.** The redundant-coverage folding already decided only works cleanly if the file boundary is the feature — and the site's own numbering could change without notice (see the test plan's Risks section), so naming files after it would be fragile. Tests trace to criteria through their titles, not through file names. `pages/` and `api/` sit outside `tests/` entirely because a page object or client wrapper is reused across multiple spec files (`LoginPage` is used by both `auth.spec.ts` and the checkout journey, which starts its signup on the login page) — nesting it under one test directory would misrepresent that reuse.
 
 Tags (`@smoke`, `@regression`, `@a11y`) are applied per `test()`, not per file or per project, so this structure doesn't constrain which tag a given test carries — a smoke test and a regression test can sit in the same spec file when they cover the same feature.
 

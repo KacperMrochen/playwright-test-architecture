@@ -41,10 +41,11 @@ Found and fixed during the pass:
   the criterion would not survive a mechanical check. It is now a
   `test.step()` inside "AC-03.1 logs in and out". All 66 criteria are now
   named by a test or step title.
-- **Four more coverage-map rows had drifted**, beyond the two this task
+- **Five more coverage-map rows had drifted**, beyond the two this task
   already recorded: AC-05.2, AC-08.1, AC-18.1 and AC-19.1 quoted test
-  titles that no longer existed. The Test column now quotes the full
-  `AC-NN.N ...` title so the next drift is greppable.
+  titles that no longer existed, and AC-15.4 pointed at AC-15.1's test
+  instead of its own. Wherever the Test column quotes a test, it now
+  quotes the exact title, so the next drift can be found by searching.
 - **AC-13.1's coverage-map description claimed deletion ends sessions.**
   FR-13 makes no such claim; it requires a following `verifyLogin` to
   return 404. The description and the test title now match the criterion.
