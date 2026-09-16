@@ -49,6 +49,12 @@ Found and fixed during the pass:
   FR-13 makes no such claim; it requires a following `verifyLogin` to
   return 404. The description and the test title now match the criterion.
   No criteria were changed to fit a test.
+- **AC-01.5 claimed more than the site does.** It said the read-back holds
+  every submitted value; re-verified against the live site, the mobile
+  number never comes back, under any key. The test passed only because its
+  field list silently left it out. The criterion now states that exception
+  — and that the number is still stored, since checkout shows it — and the
+  test checks it is absent by value.
 - Assertion and API-currency fixes across the suite, listed in the pull
   request.
 

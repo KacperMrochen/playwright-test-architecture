@@ -32,7 +32,7 @@ inside another test inherit that test's tag and say so.
 | AC-01.2 | Account information form creates the account | e2e | QA | same journey (step) | `@smoke` |
 | AC-01.3 | Continue lands logged in as the new user | e2e | QA | same journey (step) | `@smoke` |
 | AC-01.4 | `POST /api/createAccount` returns 201 | integration | dev | `api/account.spec.ts` | `@smoke` |
-| AC-01.5 | `getUserDetailByEmail` returns the submitted fields | integration | dev | `api/account.spec.ts` | `@regression` |
+| AC-01.5 | `getUserDetailByEmail` returns the submitted profile details, except the mobile number | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-01.6 | `getUserDetailByEmail` returns 404 for an unknown email | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-02.1 | Signup form rejects an existing email with a message | e2e | QA | `e2e/auth.spec.ts` | `@regression` |
 | AC-02.2 | `createAccount` rejects an existing email (400) | integration | dev | `api/account.spec.ts` | `@regression` |

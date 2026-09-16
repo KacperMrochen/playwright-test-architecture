@@ -18,7 +18,9 @@ test('AC-01.5 reads the account details back', { tag: '@regression' }, async ({ 
   const body = await getUserDetails(request, account.email);
 
   expect(body.responseCode).toBe(200);
-  // The response renames several fields it was given.
+  // Keyed by the response's names, not the request's: `firstname` comes
+  // back as `first_name`, `lastname` as `last_name`, `birth_date` as
+  // `birth_day`.
   expect(body.user).toMatchObject({
     name: account.name,
     email: account.email,
@@ -30,11 +32,15 @@ test('AC-01.5 reads the account details back', { tag: '@regression' }, async ({ 
     last_name: account.lastName,
     company: account.company,
     address1: account.address1,
+    address2: account.address2,
     country: account.country,
     state: account.state,
     city: account.city,
     zipcode: account.zipcode,
   });
+
+  // Checked by value, not key: it must not come back under any name.
+  expect(JSON.stringify(body.user)).not.toContain(account.mobileNumber);
 });
 
 test('AC-01.6 reports 404 for an unknown email', { tag: '@regression' }, async ({ request }) => {
