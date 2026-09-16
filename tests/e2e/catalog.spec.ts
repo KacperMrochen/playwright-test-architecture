@@ -16,7 +16,7 @@ test('AC-15.1 searches the catalog', { tag: '@regression' }, async ({ page }) =>
 
   await test.step('AC-15.2 products whose name matches are listed', async () => {
     // Asserted as "known matches appear", never "every result matches":
-    // the site also matches on category (AC-15.2).
+    // the site also matches on category.
     await expect(products.productNames.filter({ hasText: blueTop.name })).toHaveCount(1);
     await expect(products.productNames.filter({ hasText: 'Winter Top' })).toHaveCount(1);
   });

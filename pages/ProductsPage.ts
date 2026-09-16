@@ -4,7 +4,7 @@ import type { Locator, Page } from '@playwright/test';
 export type Destination = { path: string; name: string };
 
 /** `/products`, plus the category and brand listings, which reuse the same
- * product-card markup and the same add-to-cart control (AC-06.5). */
+ * product-card markup and the same add-to-cart control. */
 export class ProductsPage {
   readonly title: Locator;
   readonly searchInput: Locator;

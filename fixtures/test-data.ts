@@ -21,9 +21,9 @@ const ALLOWED_HOSTS = [
   'fonts.gstatic.com',
 ];
 
-/** Blocks every host but the site and its font CDN. Applied to the default
- * context by the fixture below, and called directly by tests that open a
- * second context (AC-05.2, AC-08.1). */
+/** Blocks every host but the site and its font CDN. The fixture below
+ * applies it to the default context; a test that opens its own context
+ * has to call it itself. */
 export async function blockThirdParty(context: BrowserContext) {
   await context.route('**/*', (route) => {
     const host = new URL(route.request().url()).hostname;
@@ -58,8 +58,8 @@ export function uniqueEmail(): string {
   return `pta-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
 }
 
-/** The address every "unknown account" criterion is proved against:
- * AC-01.6, AC-04.2, AC-04.4, AC-13.2, AC-22.2. Nothing ever registers it. */
+/** An address nothing ever registers, for checking how the site answers
+ * about an account that doesn't exist. */
 export const NEVER_REGISTERED_EMAIL = 'pta-never-registered@example.com';
 
 /** The catalog items the suite pins by id. Names and prices are site data
@@ -83,8 +83,8 @@ export function rupees(price: string): number {
 
 const NON_EMPTY = expect.stringMatching(/\S/);
 
-/** A complete product, as AC-12.1 defines one. AC-15.3 requires search
- * results in that same shape. */
+/** What a complete product looks like. The catalog and search endpoints
+ * return the same shape, so both are checked against this. */
 export const PRODUCT_SHAPE = {
   id: expect.any(Number),
   name: NON_EMPTY,
@@ -97,7 +97,7 @@ export const PRODUCT_SHAPE = {
 };
 
 /** A unique account per test. The site rejects a reused email, and a
- * logged-in account's cart lives on the server (FR-08), so sharing one
+ * logged-in account's cart lives on the server, so sharing one
  * would leak state between tests. */
 export function newAccount(overrides: Partial<Account> = {}): Account {
   return {
@@ -134,7 +134,7 @@ export const TEST_CARD = {
 };
 
 /** Logs in over HTTP and returns the session cookies. `verifyLogin` can't
- * do this — it confirms credentials and issues nothing (AC-03.3) — so the
+ * do this — it confirms credentials but issues no session — so the
  * login form is posted directly, CSRF token and all. */
 export async function loginCookies(credentials: { email: string; password: string }) {
   const session = await playwrightRequest.newContext({ baseURL: BASE_URL });

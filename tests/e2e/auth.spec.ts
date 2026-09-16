@@ -18,8 +18,6 @@ test('AC-03.1 logs in and out', { tag: '@smoke' }, async ({ page, account }) => 
   await login.goto();
   await login.login(account);
 
-  // The fixture created this account through POST /api/createAccount, so
-  // the same sign-in proves AC-03.2 as well.
   await test.step('AC-03.2 an API-created account logs in through the form', async () => {
     await expect(header.loggedInAs).toHaveText(`Logged in as ${account.name}`);
   });
@@ -45,14 +43,12 @@ test('AC-04.1 rejects a wrong password', { tag: '@regression' }, async ({ page, 
   await expect(new Header(page).loggedInAs).toBeHidden();
 });
 
-test('AC-04.2 answers identically for an unknown email', { tag: '@regression' }, async ({ page }) => {
+test('AC-04.2 rejects an unknown email', { tag: '@regression' }, async ({ page }) => {
   const login = new LoginPage(page);
 
   await login.goto();
   await login.login({ email: NEVER_REGISTERED_EMAIL, password: 'not-the-password' });
 
-  // Same wording as AC-04.1 — the page doesn't reveal whether the account
-  // exists.
   await expect(login.loginError).toHaveText(WRONG_CREDENTIALS);
 });
 

@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
-/** `/contact_us`. Submitting raises a native `confirm` (AC-20.2), so the
+/** `/contact_us`. Submitting raises a native `confirm`, so the
  * caller must be listening for the dialog before clicking. */
 export class ContactUsPage {
   readonly name: Locator;

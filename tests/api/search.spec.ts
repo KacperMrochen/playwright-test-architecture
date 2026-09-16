@@ -5,11 +5,11 @@ test('AC-15.3 returns products matching the term', { tag: '@regression' }, async
   const body = await searchProducts(request, 'tshirt');
 
   expect(body.responseCode).toBe(200);
-  // The site matches on more than the name (AC-15.2), so a known product is
-  // asserted to be present rather than every result asserted to match.
+  // The site matches on more than the name, so a known product is asserted
+  // to be present rather than every result asserted to match.
   expect(body.products.map((product) => product.name)).toContain(PRODUCTS.menTshirt.name);
 
-  // AC-15.3 pins search results to AC-12.1's shape, not a looser one.
+  // Search results come back in the same shape as the full catalog.
   for (const product of body.products) {
     expect.soft(product, `product ${product.id}`).toMatchObject(PRODUCT_SHAPE);
   }

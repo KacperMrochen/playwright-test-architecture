@@ -1,8 +1,7 @@
 /** Shapes returned by automationexercise.com's documented API.
  *
  * Every endpoint answers HTTP 200 and puts the real outcome in
- * `responseCode` — see docs/criteria/requirements/FR-14-api-request-errors.md.
- * The body is JSON served as `text/html`, which `response.json()` parses
+ * `responseCode`, errors included. The body is JSON served as `text/html`, which `response.json()` parses
  * regardless. */
 
 export type ApiResult = {

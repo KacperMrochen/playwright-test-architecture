@@ -10,8 +10,7 @@ import { Header } from '../../pages/Header';
 
 const { blueTop, menTshirt } = PRODUCTS;
 
-/** The journey through the cart is AC-06/AC-09's subject, not these tests'
- * — they start where checkout does. */
+/** Getting to checkout is tested elsewhere; these tests start there. */
 async function checkoutWithOneProduct(page: Page, productId: number): Promise<CheckoutPage> {
   const products = new ProductsPage(page);
   await products.goto();

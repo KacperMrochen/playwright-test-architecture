@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 /** The home page, and the footer subscription form it shares with every
- * other page (AC-19.1, AC-19.2). */
+ * other page. */
 export class HomePage {
   readonly recommendedItems: Locator;
   readonly subscriptionHeading: Locator;

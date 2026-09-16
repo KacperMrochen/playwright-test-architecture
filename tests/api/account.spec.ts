@@ -1,7 +1,6 @@
 import { test, expect, newAccount, NEVER_REGISTERED_EMAIL } from '../../fixtures/test-data';
 import {
   createAccount,
-  createAccountWith,
   deleteAccount,
   getUserDetails,
   updateAccount,
@@ -55,7 +54,7 @@ test('AC-02.2 rejects an email already in use', { tag: '@regression' }, async ({
 });
 
 test('AC-14.4 reports 400 when a field is missing', { tag: '@regression' }, async ({ request }) => {
-  const body = await createAccountWith(request, { email: 'pta-incomplete@example.com' });
+  const body = await createAccount(request, { email: 'pta-incomplete@example.com' });
 
   expect(body.responseCode).toBe(400);
   expect(body.message).toBe('Bad request, name parameter is missing in POST request.');

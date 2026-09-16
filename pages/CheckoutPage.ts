@@ -1,8 +1,8 @@
 import type { Locator, Page } from '@playwright/test';
 import { TEST_CARD, rupees } from '../fixtures/test-data';
 
-/** `/checkout` and `/payment`: address details, order review, the comment
- * field (AC-10.7), the card form and the confirmation. */
+/** Covers both `/checkout` and `/payment`, which one order passes through
+ * in sequence. */
 export class CheckoutPage {
   readonly deliveryAddress: Locator;
   readonly billingAddress: Locator;

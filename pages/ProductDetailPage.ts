@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
-/** `/product_details/<id>` — product information, the quantity field that
- * feeds AC-06.4, and the review form (AC-21.1). */
+/** `/product_details/<id>`: product information, a quantity field that
+ * decides how many units go into the cart, and the review form. */
 export class ProductDetailPage {
   readonly information: Locator;
   readonly name: Locator;

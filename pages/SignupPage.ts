@@ -2,7 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 import type { Account } from '../fixtures/test-data';
 
 /** `/signup` — the account information form, reached from the login page
- * with the name and email already carried over (AC-01.1). */
+ * with the name and email already carried over. */
 export class SignupPage {
   readonly name: Locator;
   readonly email: Locator;

@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 /** The navigation bar, shared by every page. Its contents are how the site
- * shows whether anyone is logged in (AC-03.1, AC-05.1). */
+ * shows whether anyone is logged in. */
 export class Header {
   readonly loggedInAs: Locator;
   readonly logout: Locator;

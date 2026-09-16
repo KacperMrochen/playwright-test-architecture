@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 /** `/view_cart`. One row per product, keyed `#product-<id>`; the quantity
- * is a disabled control (AC-06.6). */
+ * is a disabled control, not an input. */
 export class CartPage {
   readonly rows: Locator;
   readonly emptyMessage: Locator;

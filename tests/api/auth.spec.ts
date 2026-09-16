@@ -15,14 +15,13 @@ test('AC-04.3 rejects a wrong password', { tag: '@regression' }, async ({ reques
   expect(body.message).toBe('User not found!');
 });
 
-test('AC-04.4 answers identically for an unknown email', { tag: '@regression' }, async ({ request }) => {
+test('AC-04.4 rejects an unknown email', { tag: '@regression' }, async ({ request }) => {
   const body = await verifyLogin(request, {
     email: NEVER_REGISTERED_EMAIL,
     password: 'not-the-password',
   });
 
-  // Same code and message as AC-04.3: the endpoint doesn't reveal whether
-  // the account exists.
+  // The endpoint doesn't reveal whether the account exists.
   expect(body.responseCode).toBe(404);
   expect(body.message).toBe('User not found!');
 });

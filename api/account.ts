@@ -2,11 +2,12 @@ import type { APIRequestContext } from '@playwright/test';
 import type { Account } from '../fixtures/test-data';
 import type { ApiResult, UserDetailsResult } from './types';
 
-/** The site's account form field names. They differ from the names
- * `getUserDetailByEmail` reads back (`firstname` → `first_name`), which is
- * what AC-01.5 pins down. */
-function accountForm(account: Account): Record<string, string> {
-  return {
+/** Translates an account into the field names the site's API accepts,
+ * which differ from the names it reads back (`firstname` returns as
+ * `first_name`). Unset fields are omitted, so a caller can submit a
+ * deliberately incomplete account. */
+function accountForm(account: Partial<Account>): Record<string, string> {
+  const fields = {
     name: account.name,
     email: account.email,
     password: account.password,
@@ -25,18 +26,18 @@ function accountForm(account: Account): Record<string, string> {
     city: account.city,
     mobile_number: account.mobileNumber,
   };
+  const form: Record<string, string> = {};
+  for (const [field, value] of Object.entries(fields)) {
+    if (value !== undefined) form[field] = value;
+  }
+  return form;
 }
 
-export async function createAccount(request: APIRequestContext, account: Account): Promise<ApiResult> {
-  const response = await request.post('/api/createAccount', { form: accountForm(account) });
-  return response.json();
-}
-
-export async function createAccountWith(
+export async function createAccount(
   request: APIRequestContext,
-  form: Record<string, string>,
+  account: Partial<Account>,
 ): Promise<ApiResult> {
-  const response = await request.post('/api/createAccount', { form });
+  const response = await request.post('/api/createAccount', { form: accountForm(account) });
   return response.json();
 }
 
