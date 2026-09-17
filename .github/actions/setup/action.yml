@@ -1,0 +1,25 @@
+name: Set up the suite
+description: Node, the locked dependencies, and the Playwright browsers a run needs.
+
+inputs:
+  browsers:
+    description: Playwright browsers to install, space-separated — only the ones the run's projects use.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+        cache: npm
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Install browsers
+      shell: bash
+      env:
+        BROWSERS: ${{ inputs.browsers }}
+      run: npx playwright install --with-deps $BROWSERS

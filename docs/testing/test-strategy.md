@@ -210,9 +210,9 @@ coverage — see Pipeline below for the command per group.
 
   | Group | Question | Trigger | Command | Scope |
   |---|---|---|---|---|
-  | Post-push | Does this change break the suite? | every PR update, drafts included | `npm run test:smoke:pr` | 5 smoke tests × `api`, `e2e-chromium`, `e2e-mobile-ios` |
-  | Pre-merge | Same, wider | PR opened ready, marked ready, or labelled `regression` | `npm run test:regression:pr` | everything on `api` + `e2e-chromium`, smoke on the 3 gate projects |
-  | Scheduled | Did the site change under us? | nightly (regression), Monday (a11y) | `npm test` / `npm run test:a11y` | the full 6-project matrix |
+  | Post-push (`Smoke`) | Does this change break the suite? | every PR push, drafts included | `npm run test:smoke:pr` | 5 smoke tests × `api`, `e2e-chromium`, `e2e-mobile-ios` |
+  | Pre-merge (`Regression`) | Same, wider | every PR push once out of draft; required to merge | `npm run test:regression:pr` | everything on `api` + `e2e-chromium`, smoke on the 3 gate projects |
+  | Scheduled | Did the site change under us? | nightly (full matrix), Monday (a11y) | `npm test` / `npm run test:a11y` | the full 6-project matrix |
 
   **Why the engines sit in the nightly group.** Which browser breaks is a
   property of the site, not of our diff, so running Firefox, desktop
@@ -221,10 +221,23 @@ coverage — see Pipeline below for the command per group.
   group still covers two engines (Chromium and mobile WebKit) on the core
   paths.
 
-  **Pre-merge checks the commit you marked ready, not the one you merge.**
-  Push again afterwards and only the post-push group re-runs. The
-  `regression` label re-runs it on demand; otherwise the nightly catches
-  an escape within a day. That's an accepted gap, not an oversight.
+  **Pre-merge checks the code that gets merged.** The regression runs on
+  every push once a PR is out of draft, `main` requires it to pass, and a
+  PR has to be up to date with `main` before it merges — so the head that
+  passed is the tree that lands. Two alternatives were rejected: GitHub's
+  merge queue, which tests the merge result directly but needs a
+  repository owned by an organization, and a post-merge run on `main`,
+  which under the up-to-date rule only re-tests what the gate already
+  tested. The cost is one more job on each push to a ready PR, about two
+  and a half minutes; it runs alongside smoke, so the wait for a result
+  grows by about a minute.
+
+  **A PR that touches only prose skips both suites** — Markdown, `docs/`
+  and `tasks/` can't break a test, and running one creates accounts on a
+  site we don't own. A job inside the workflow decides this rather than
+  `paths-ignore`: a workflow that never starts leaves a required check
+  pending forever, while a skipped job counts as passing. Anything short of
+  a confirmed docs-only diff runs the suites, including a failed lookup.
 
   This is also why `api` and `e2e` stay separate Playwright *projects*
   rather than separate pipeline jobs: the projects control execution
@@ -301,7 +314,8 @@ One command — `npx playwright test` — runs the same suite locally and in
 CI; no CI-only config or test subset. Playwright's version is pinned exactly
 in `package.json` (no caret range), since installed browser binaries are
 tied to the exact npm package version, and the same `npx playwright install`
-step runs in both places. No containerized dependency is needed — the
+step runs in both places, CI narrowing it to the browsers a job's
+projects use. No containerized dependency is needed — the
 target is a public live site rather than a service we run ourselves, which
 removes the usual local/CI parity problem of keeping a local database or
 backend in sync with CI.

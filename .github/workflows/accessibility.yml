@@ -1,0 +1,48 @@
+name: Accessibility
+
+# The weekly accessibility scan. It is exploratory, so it runs on its own
+# schedule and blocks nothing.
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Accessibility scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium
+
+      # `--list` exits non-zero both when no test matches and when the
+      # config is broken, so the count is read from its output instead. No
+      # tests yet is reported as a warning; a failed lookup fails the job.
+      - id: find
+        name: Find accessibility tests
+        run: |
+          total=$({ npx playwright test --project=e2e-chromium --grep @a11y --list || true; } \
+            | sed -n 's/^Total: \([0-9]*\) test.*/\1/p')
+          if [ -z "$total" ]; then
+            echo "::error::Could not list the accessibility tests."
+            exit 1
+          fi
+          if [ "$total" -eq 0 ]; then
+            echo "::warning::No accessibility tests exist yet, so nothing was scanned."
+          fi
+          echo "total=$total" >> "$GITHUB_OUTPUT"
+
+      - if: ${{ steps.find.outputs.total != '0' }}
+        run: npm run test:a11y
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.find.outputs.total != '0' }}
+        with:
+          name: playwright-report-a11y
+          path: playwright-report/
+          retention-days: 30

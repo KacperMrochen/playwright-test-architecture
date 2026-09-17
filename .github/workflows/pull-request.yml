@@ -1,0 +1,82 @@
+name: Pull request
+
+# Every push gets the smoke suite. Once the PR is out of draft, every push
+# also gets the full regression, which `main` requires before a merge.
+# Reasoning: docs/testing/test-strategy.md#pipeline
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pull-request-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect code changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+    steps:
+      # Prose can't break the suite, so a docs-only PR skips it. This is
+      # decided here rather than with `paths-ignore`, because a workflow that
+      # never starts leaves a required check waiting forever. Anything short
+      # of a confirmed docs-only diff counts as code, including a failed
+      # lookup.
+      - id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if files=$(gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" --name-only) \
+            && [ -n "$files" ] \
+            && ! grep -qvE '\.md$|^docs/|^tasks/|^LICENSE$' <<< "$files"; then
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  smoke:
+    name: Smoke
+    needs: changes
+    # `!cancelled()` keeps this job from being skipped when `changes`
+    # fails; only an explicit docs-only answer skips it.
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium webkit
+      - run: npm run test:smoke:pr
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-smoke
+          path: playwright-report/
+          retention-days: 30
+
+  regression:
+    name: Regression
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' && !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium webkit
+      - run: npm run test:regression:pr
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-regression
+          path: playwright-report/
+          retention-days: 30

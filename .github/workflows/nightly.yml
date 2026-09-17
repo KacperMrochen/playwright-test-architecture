@@ -1,0 +1,62 @@
+name: Nightly
+
+# The full matrix against the live site. Everything on `main` passed the
+# regression gate, so a failure here most likely comes from the site. Nobody
+# is watching at 03:00, so it opens a `site-drift` issue instead.
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  full-matrix:
+    name: Full matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          browsers: chromium firefox webkit
+      - id: tests
+        run: npm test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-nightly
+          path: playwright-report/
+          retention-days: 30
+
+      # A setup failure says nothing about the site, so only a failed test
+      # run is reported. One open issue at a time, commented on rather than
+      # duplicated.
+      - name: Report possible site drift
+        if: ${{ failure() && steps.tests.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create site-drift --force --color D93F0B \
+            --description "Nightly run failed — the target site may have changed"
+          body=$(printf '%s\n' \
+            "The nightly run against automationexercise.com failed: $RUN_URL" \
+            "" \
+            "Everything on main passed the regression gate, so the cause is most likely the site:" \
+            "- its behavior changed — re-verify it and update docs/criteria/ before touching a test" \
+            "  (AGENTS.md, Spec drift), or" \
+            "- it refused the runner — a verification page served instead of JSON fails every" \
+            "  API call with \"Unexpected token '<'\". Nothing to fix; the next run will tell.")
+          existing=$(gh issue list --label site-drift --state open --limit 1 --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --label site-drift --title "Nightly suite failed — check for site drift" --body "$body"
+          fi
