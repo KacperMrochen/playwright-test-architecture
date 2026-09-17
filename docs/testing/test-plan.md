@@ -16,11 +16,11 @@ a contract.
 ## Coverage map
 
 Every criterion. Layer picks the cheapest thing that proves the
-behavior — or *manual*, for the few checked by hand instead in
-[`manual-checks.md`](./manual-checks.md); owner reflects the convention a real team would follow
+behavior — or *manual*, for the few left untested: no test, only a
+written procedure in [`manual-checks.md`](./manual-checks.md) that nothing
+schedules. Owner reflects the convention a real team would follow
 (single-endpoint contract checks written alongside the endpoint by devs,
-journeys and cross-feature checks by QA) rather than an actual team — here
-both are the same person.
+journeys and cross-feature checks by QA).
 
 Tags are the pipeline axis, independent of layer — see
 [`test-strategy.md`](./test-strategy.md#pipeline). Every standalone test
@@ -155,10 +155,10 @@ tests trace to; tests trace to the criteria above.
 
 ## Redundant coverage
 
-No tests exist yet, so nothing here is being *removed* — these are cases
-where building the naive one-test-per-published-case suite would duplicate
-coverage a cheaper layer (or an earlier journey) already proves. Naming
-them now means they're never built in the first place.
+Nothing here was *removed*: these are cases where building the naive
+one-test-per-published-case suite would have duplicated coverage a cheaper
+layer (or an earlier journey) already proves. Naming them before the suite
+was written is why they were never built.
 
 Five outcomes are possible, and the Status column above is only readable if
 you know which one applies:
@@ -188,7 +188,7 @@ is a finding rather than an intention.
 | Requirement | Method | Tool | Threshold | Runs | Tag |
 |---|---|---|---|---|---|
 | NFR-01 Accessibility (key pages) | automated scan | `@axe-core/playwright` | zero critical/serious violations on home, products, cart, checkout | weekly schedule, read-only pages only | `@a11y` |
-| NFR-02 Third-party content | manual check ([MC-03](./manual-checks.md#mc-03--a-real-visitors-pass)) | an ordinary browser, nothing blocked | consent dialog answered, then a product added to the cart and "Proceed To Checkout" reaching the "Register / Login" prompt | monthly, and before showing the project | — |
+| NFR-02 Third-party content | manual check ([MC-03](./manual-checks.md#mc-03--a-real-visitors-pass)) | an ordinary browser, nothing blocked | consent dialog answered, then a product added to the cart and "Proceed To Checkout" reaching the "Register / Login" prompt | not scheduled | — |
 | Performance / load | not tested | — | — | — | — |
 | Security (active scanning) | not tested | — | — | — | — |
 
@@ -214,13 +214,13 @@ test follows in [`TESTING.md`](../../TESTING.md#test-data).
 
 ## Manual and untested
 
-Manual doesn't mean forgotten: each check below has a trigger, an owner, a
-timebox and a run log in [`manual-checks.md`](./manual-checks.md), and the
-rule deciding what stays manual is in
+Each manual check below has a written procedure in
+[`manual-checks.md`](./manual-checks.md), but nothing schedules it or
+records a run. The rule deciding what stays manual is in
 [`test-strategy.md`](./test-strategy.md#what-we-dont-automate).
 
 - AC-23.1 and AC-23.2, the scroll-to-top control (MC-01), and AC-24.1,
-  the Test Cases page (MC-02) — checked by hand: cosmetic or static
+  the Test Cases page (MC-02) — not automated: cosmetic or static
   behavior with no business risk, and scroll assertions would flake across
   engines and devices.
 - NFR-02, ads and the consent dialog (MC-03), and real mobile devices
