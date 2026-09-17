@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   full-matrix:
-    name: Full matrix
+    name: Nightly drift check
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

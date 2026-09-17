@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   scan:
-    name: Accessibility scan
+    name: Weekly accessibility scan
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
