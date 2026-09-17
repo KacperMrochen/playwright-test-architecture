@@ -16,7 +16,8 @@ a contract.
 ## Coverage map
 
 Every criterion. Layer picks the cheapest thing that proves the
-behavior; owner reflects the convention a real team would follow
+behavior — or *manual*, for the few checked by hand instead in
+[`manual-checks.md`](./manual-checks.md); owner reflects the convention a real team would follow
 (single-endpoint contract checks written alongside the endpoint by devs,
 journeys and cross-feature checks by QA) rather than an actual team — here
 both are the same person.
@@ -94,11 +95,9 @@ inside another test inherit that test's tag and say so.
 | AC-22.1 | `updateAccount` changes the stored details | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-22.2 | `updateAccount` returns 404 for an unknown email | integration | dev | `api/account.spec.ts` | `@regression` |
 | AC-22.3 | `updateAccount` refuses a wrong password as "not found" | integration | dev | `api/account.spec.ts` | `@regression` |
-
-That's 66 criteria. Five tests carry `@smoke`: the order journey, the
-login/logout test, and three API checks (`AC-01.4`, `AC-03.3`, `AC-12.1`).
-The rest are `@regression` — about 20 tests, since several criteria share
-one test; the exact number is settled when they're written.
+| AC-23.1 | The arrow control appears once the home page is scrolled down | manual | QA | [MC-01](./manual-checks.md#mc-01--scroll-to-top-control) | — |
+| AC-23.2 | The arrow control returns the page to the top, URL unchanged | manual | QA | [MC-01](./manual-checks.md#mc-01--scroll-to-top-control) | — |
+| AC-24.1 | Both "Test Cases" links open the published test cases | manual | QA | [MC-02](./manual-checks.md#mc-02--test-cases-page) | — |
 
 No unit layer appears above: we don't own this site's code, so there's
 nothing of theirs to unit test. "Unit" applies only to our own helper code
@@ -119,7 +118,7 @@ tests trace to; tests trace to the criteria above.
 | TC04 Logout | AC-05.1 | covered, bundled into the login test |
 | TC05 Register with an existing email | AC-02.1, AC-02.2 | covered at both layers |
 | TC06 Contact Us form | AC-20.1 – AC-20.3 | covered |
-| TC07 Test Cases page renders | — | manual; static content, no business risk |
+| TC07 Test Cases page | AC-24.1 | manual ([MC-02](./manual-checks.md#mc-02--test-cases-page)) — static page, no business risk |
 | TC08 Products and product detail pages | AC-18.1 | covered |
 | TC09 Search product | AC-15.1 – AC-15.3 | covered at both layers |
 | TC10 Subscription (home) | AC-19.1 | covered |
@@ -137,7 +136,8 @@ tests trace to; tests trace to the criteria above.
 | TC22 Add to cart from Recommended items | AC-06.5 | redundant — verified as the same control, see below |
 | TC23 Address details on checkout | AC-10.2 | covered |
 | TC24 Download invoice | AC-11.1 | covered |
-| TC25, TC26 Scroll behavior | — | manual; cosmetic, no business risk |
+| TC25 Scroll up with the arrow | AC-23.1, AC-23.2 | manual ([MC-01](./manual-checks.md#mc-01--scroll-to-top-control)) — cosmetic, no business risk |
+| TC26 Scroll up without the arrow | — | no criterion — the browser's behavior, not the site's |
 | API01 `productsList` | AC-12.1 | covered |
 | API02 `productsList` POST | AC-14.1 | covered |
 | API03 `brandsList` | AC-17.2 | covered |
@@ -188,6 +188,7 @@ is a finding rather than an intention.
 | Requirement | Method | Tool | Threshold | Runs | Tag |
 |---|---|---|---|---|---|
 | NFR-01 Accessibility (key pages) | automated scan | `@axe-core/playwright` | zero critical/serious violations on home, products, cart, checkout | weekly schedule, read-only pages only | `@a11y` |
+| NFR-02 Third-party content | manual check ([MC-03](./manual-checks.md#mc-03--a-real-visitors-pass)) | an ordinary browser, nothing blocked | consent dialog answered, then a product added to the cart and "Proceed To Checkout" reaching the "Register / Login" prompt | monthly, and before showing the project | — |
 | Performance / load | not tested | — | — | — | — |
 | Security (active scanning) | not tested | — | — | — | — |
 
@@ -213,8 +214,23 @@ test follows in [`TESTING.md`](../../TESTING.md#test-data).
 
 ## Manual and untested
 
-- TC07 (Test Cases page), TC25, TC26 (scroll behavior) — manual only, static
-  content or cosmetic behavior with no business risk.
+Manual doesn't mean forgotten: each check below has a trigger, an owner, a
+timebox and a run log in [`manual-checks.md`](./manual-checks.md), and the
+rule deciding what stays manual is in
+[`test-strategy.md`](./test-strategy.md#what-we-dont-automate).
+
+- AC-23.1 and AC-23.2, the scroll-to-top control (MC-01), and AC-24.1,
+  the Test Cases page (MC-02) — checked by hand: cosmetic or static
+  behavior with no business risk, and scroll assertions would flake across
+  engines and devices.
+- NFR-02, ads and the consent dialog (MC-03), and real mobile devices
+  (MC-04, an assumption rather than a criterion) — invisible to the suite
+  by design, since
+  [ADR 0001](../adr/0001-third-party-network-isolation.md) blocks
+  third-party requests and Playwright's device presets aren't real
+  hardware.
+- Scrolling back up by hand (the site's TC26) — no criterion: it's the
+  browser's behavior, not the site's.
 - The Contact Us file upload — optional in the form, and the site never
   shows the file back, so there's nothing to assert beyond the same
   success message AC-20.3 already covers.
