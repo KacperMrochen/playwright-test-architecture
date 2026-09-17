@@ -5,7 +5,7 @@ automation practice.
 
 Site reference: TC07.
 
-Checked by hand, not by the automated suite: [MC-02](../../testing/manual-checks.md#mc-02--test-cases-page).
+Not automated; [MC-02](../../testing/manual-checks.md#mc-02--test-cases-page) describes how to check it by hand.
 Why it stays manual is in
 [`test-strategy.md`](../../testing/test-strategy.md#what-we-dont-automate).
 

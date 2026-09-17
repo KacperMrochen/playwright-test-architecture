@@ -10,6 +10,12 @@ This is the half of a test strategy that usually goes unwritten: a suite
 with no manual counterpart implies either that everything is automated, or
 that whatever isn't automated doesn't matter. Neither is true here.
 
+These checks are documentation, not a process. Each one describes how to
+examine by hand what the suite doesn't; nothing schedules them and no run
+is recorded. A break in one of these behaviors goes unnoticed until
+someone looks, and that cost is accepted: the point is to make the gap
+visible, not to staff it.
+
 A manual check traces to the contract the same way a test does: each one
 names the criterion or NFR it proves, and the
 [coverage map](./test-plan.md#coverage-map) lists those criteria with the
@@ -40,8 +46,8 @@ browser's behavior, not the site's, and the part of it that is the site's
 ### MC-01 — Scroll-to-top control
 
 **Proves:** AC-23.1, AC-23.2.
-**Trigger:** when the footer, the scroll-to-top control, or page layout
-changes. Otherwise once a quarter.
+**When to run:** when the footer, the scroll-to-top control, or page
+layout changes.
 **Time:** ~2 minutes.
 
 1. Open `https://automationexercise.com/`. At the top of the page there's
@@ -57,7 +63,8 @@ Automation Engineers" is in view.
 ### MC-02 — Test Cases page
 
 **Proves:** AC-24.1.
-**Trigger:** part of MC-01's quarterly pass.
+**When to run:** alongside MC-01, or when the site's published test cases
+may have changed.
 **Time:** ~1 minute.
 
 1. From the home page, click "Test Cases" in the navigation bar.
@@ -71,7 +78,7 @@ re-auditing — that's the real reason to look.
 ### MC-03 — A real visitor's pass
 
 **Proves:** NFR-02.
-**Trigger:** monthly, and before showing the project to anyone.
+**When to run:** before showing the project to anyone.
 **Time:** ~10 minutes.
 
 Run in an ordinary browser, with no blocking and no automation:
@@ -85,15 +92,15 @@ Run in an ordinary browser, with no blocking and no automation:
 
 **Expected:** step 2 ends at the "Register / Login" prompt — that's the
 pass/fail. Stopping there needs no account, so the check leaves nothing
-behind on the site. What step 3 turns up goes in the run log's follow-up
-column. **This is the check that would catch an ad-caused break, which
+behind on the site. Step 3 has no pass/fail: whatever it turns up becomes
+a criterion if it can be pinned down as behavior. **This is the check that would catch an ad-caused break, which
 the automated suite cannot see by design.**
 
 ### MC-04 — Checkout on a real phone
 
 **Examines:** the device-preset assumption in the criteria. Exploratory, so
 there's no pass/fail.
-**Trigger:** quarterly, or when checkout changes.
+**When to run:** when checkout changes.
 **Time:** 30-minute timebox, session notes rather than pass/fail.
 
 **Charter:** *explore checkout on a real phone, with real typing and a
@@ -105,18 +112,8 @@ block at narrow widths, tap targets near the payment button, and whether
 anything important sits under the browser chrome.
 
 **Record:** what was explored, what was found, and what wasn't reached in
-the timebox — the standard session-based format. A finding becomes either
-a criterion (if it's behavior we can pin down) or a note here.
-
-## Run log
-
-Filled in per run, so "we do manual checks" is a claim with evidence
-rather than an intention. A criterion checked by hand only counts as
-covered once its check has a dated run here.
-
-| Date | Checks | Who | Result | Follow-up |
-|---|---|---|---|---|
-| — | — | — | — | — |
+the timebox — the standard session-based format. A finding that can be
+pinned down as behavior becomes a criterion.
 
 ## What would make one of these automated
 
@@ -133,5 +130,5 @@ A check moves from this page into the suite when any of these is true:
   project has a real device farm, not before.
 
 The reverse also applies: an automated test that fails repeatedly for
-reasons nobody acts on belongs here instead, as a manual check with an
-honest cadence.
+reasons nobody acts on belongs here instead, as a documented manual
+check.

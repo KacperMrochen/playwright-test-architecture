@@ -12,7 +12,7 @@ layer, how often, and what each decision costs.
 | [`docs/criteria/`](docs/criteria/README.md) | How the site behaves — 24 requirements, 69 criteria, each verified against the live site |
 | [`docs/testing/test-plan.md`](docs/testing/test-plan.md) | Which criterion is proven by which test, at which layer, in which pipeline stage |
 | [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md) | Framework, project layout, browser matrix, pipeline, environments |
-| [`docs/testing/manual-checks.md`](docs/testing/manual-checks.md) | What isn't automated, why, and how it gets checked instead |
+| [`docs/testing/manual-checks.md`](docs/testing/manual-checks.md) | What isn't automated, why, and how it could be checked by hand |
 | [`TESTING.md`](TESTING.md) | The rules every individual test follows |
 | [`docs/adr/`](docs/adr/) | Decisions worth the argument they'd otherwise cause twice |
 
@@ -31,7 +31,8 @@ from that:
   [provenance](docs/testing/test-plan.md#source-case-index).
 - **A nightly run exists to catch drift.** Our code is unchanged between
   runs, so a failure points at the site first. It opens an issue, since
-  nobody is watching at 03:00.
+  nobody is watching at 03:00 — and the issue names what failed: the
+  site's behavior, the environment, a flaky test, or CI itself.
 - **A failing test is a documentation bug until proven otherwise.**
   Re-verify against the live site, update the criteria, and only then
   touch the test. Editing a test until it passes again is how a suite
@@ -43,9 +44,9 @@ from that:
   test cases; building one test per case would duplicate coverage. The
   [test plan](docs/testing/test-plan.md#redundant-coverage) records which
   ones were folded, demoted or dropped, and why.
-- **Not everything is worth automating,** and the ones that aren't get a
-  trigger, an owner and a run log rather than silence — including the
-  risks this suite hides from itself, since blocking ads also blinds it to
+- **Not everything is worth automating,** and the ones that aren't are
+  written down with a reason and a manual procedure rather than left out —
+  including the risks this suite hides from itself, since blocking ads also blinds it to
   ad-caused layout shift. See
   [what we don't automate](docs/testing/test-strategy.md#what-we-dont-automate)
   and [manual checks](docs/testing/manual-checks.md).
@@ -84,4 +85,5 @@ and deletes it afterwards.
 
 The suite is in place: 50 tests prove 66 of the 69 criteria, across six
 Playwright projects (one API, five browser), and CI runs them in the three
-groups above. The other three are checked by hand, on purpose.
+groups above. The other three are left out of automation on purpose, each
+with a manual procedure.

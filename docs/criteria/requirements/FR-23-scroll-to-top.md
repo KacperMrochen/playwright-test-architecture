@@ -5,7 +5,7 @@ control takes them back to the top.
 
 Site reference: TC25.
 
-Checked by hand, not by the automated suite: [MC-01](../../testing/manual-checks.md#mc-01--scroll-to-top-control).
+Not automated; [MC-01](../../testing/manual-checks.md#mc-01--scroll-to-top-control) describes how to check it by hand.
 Why it stays manual is in
 [`test-strategy.md`](../../testing/test-strategy.md#what-we-dont-automate).
 

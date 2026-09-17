@@ -16,7 +16,7 @@ Each requirement lives in its own file under
 [`requirements/`](requirements/). The
 [test plan](../testing/test-plan.md) says which
 criterion is tested at which layer and in which pipeline stage — and
-which ones are checked by hand instead, in
+which ones are left untested on purpose, with a manual procedure in
 [`manual-checks.md`](../testing/manual-checks.md).
 
 | ID | Requirement |
@@ -43,8 +43,8 @@ which ones are checked by hand instead, in
 | [FR-20](requirements/FR-20-contact-us.md) | Submit the Contact Us form |
 | [FR-21](requirements/FR-21-product-review.md) | Write a product review |
 | [FR-22](requirements/FR-22-update-account-api.md) | Update an account through the API |
-| [FR-23](requirements/FR-23-scroll-to-top.md) | Return to the top of the home page *(checked by hand)* |
-| [FR-24](requirements/FR-24-test-cases-page.md) | Open the site's published test cases *(checked by hand)* |
+| [FR-23](requirements/FR-23-scroll-to-top.md) | Return to the top of the home page *(not automated)* |
+| [FR-24](requirements/FR-24-test-cases-page.md) | Open the site's published test cases *(not automated)* |
 
 ## Non-functional requirements
 
@@ -58,8 +58,8 @@ which ones are checked by hand instead, in
   which brings up the "Register / Login" prompt (AC-09.1). The dialog
   appears in some regions and blocks every click until answered
   ([ADR 0001](../adr/0001-third-party-network-isolation.md)). The suite
-  blocks third-party requests by design, so this is checked by hand
-  ([MC-03](../testing/manual-checks.md#mc-03--a-real-visitors-pass)).
+  blocks third-party requests by design and [MC-03](../testing/manual-checks.md#mc-03--a-real-visitors-pass)
+  describes how to check 3rd party features by hand.
 - **Performance:** N/A. Generating load against a site we don't own isn't
   authorized.
 - **Security:** N/A. Active security testing of a site we don't own isn't
@@ -74,20 +74,17 @@ which ones are checked by hand instead, in
 
 ## Exit criteria
 
-- Every acceptance criterion is proven at the layer the test plan's
-  coverage map assigns: by an automated test, or — where the map says
-  *manual* — by a check in
-  [`manual-checks.md`](../testing/manual-checks.md) with at least one dated
-  run in its log.
-- Every `@smoke` test passes on the three PR-gate projects and on all six
-  after a merge to main; every `@regression` test passes on `api` and
-  `e2e-chromium`.
-- Each new test has been seen to fail when its behavior is broken
-  ([`TESTING.md`](../../TESTING.md#a-test-must-be-able-to-fail)).
-- The test plan references these `AC-NN.N` IDs instead of the site's
-  own `TC`/`API` numbering.
-- NFR-01 has an `@a11y` test in the weekly job.
-- NFR-02 has at least one dated run of its manual check.
+- Every criterion has an automated test at the layer the coverage map
+  assigns, or is marked *manual* and left unautomated
+  ([`manual-checks.md`](../testing/manual-checks.md)).
+  - Every NFR likewise: a check in a pipeline stage, or N/A with the
+    reason.
+  - CI enforces the criteria half: a criterion with no test, a test naming
+    an unknown ID, or a map row pointing at a test that doesn't exist
+    fails the check.
+- Every pipeline group is green:
+  - `@smoke` on the PR-gate projects, and on the full matrix nightly.
+  - `@regression` on `api` and `e2e-chromium`.
 
 ## Decision points
 
@@ -120,9 +117,8 @@ which ones are checked by hand instead, in
   iPhone and a Pixel profile in desktop builds of WebKit and Chromium, so
   touch input, on-screen keyboards and real mobile browsers can behave
   differently. There's no pass/fail to state about that without real
-  hardware, so it isn't a criterion; an exploratory session on a real
-  phone ([MC-04](../testing/manual-checks.md#mc-04--checkout-on-a-real-phone))
-  is how the gap is examined.
+  hardware, so it isn't a criterion;
+  - [MC-04](../testing/manual-checks.md#mc-04--checkout-on-a-real-phone) describes an exploratory session on a real phone that examines the gap.
 - **Writes we can't read back.** A newsletter subscription, a contact
   message and a product review are all accepted with a confirmation
   message and nothing the site shows back. The criteria stop at the

@@ -28,6 +28,10 @@ export default defineConfig({
   /* TESTING.md: passing only on retry is flaky, not green. This makes the
    * run itself say so instead of leaving it to whoever reads the report. */
   failOnFlakyTests: true,
+  /* One worker in CI: no group is near its budget, and extra concurrency
+   * against a site we don't own buys minutes we don't need — see
+   * test-strategy.md#pipeline for the durations and what reopens this.
+   * Locally, unbounded, which is where parallel isolation gets proven. */
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
