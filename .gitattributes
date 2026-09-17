@@ -1,0 +1,5 @@
+# Line endings belong to the repository, not to each contributor's
+# core.autocrlf. Every blob already committed here is LF and the pipeline
+# runs on ubuntu-latest, so LF is what the working tree gets on every
+# platform too — a contributor with autocrlf off can't introduce CRLF.
+* text=auto eol=lf

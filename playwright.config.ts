@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { BASE_URL } from './fixtures/test-data';
 
 /**
  * Read environment variables from file.
@@ -21,10 +22,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* At most one retry, CI-only — see test-strategy.md#pipeline for why. */
   retries: process.env.CI ? 1 : 0,
+  /* 60s, not the 30s default: the target is a live third-party site — see
+   * test-strategy.md#pipeline. */
+  timeout: 60_000,
+  /* TESTING.md: passing only on retry is flaky, not green. This makes the
+   * run itself say so instead of leaving it to whoever reads the report. */
+  failOnFlakyTests: true,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'https://automationexercise.com',
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
   },
 

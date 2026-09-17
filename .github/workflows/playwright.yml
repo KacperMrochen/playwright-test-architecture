@@ -14,6 +14,17 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, labeled]
     branches: [main]
+    # A change that touches only prose can't break the suite, so it doesn't
+    # run it. GitHub skips only when EVERY changed file matches, so a PR
+    # mixing docs and code still runs in full. Workflow and config files are
+    # deliberately absent from this list — those must always be exercised.
+    # Note: if these checks are ever made required in branch protection, a
+    # skipped run reports as pending, not passing.
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'tasks/**'
+      - LICENSE
   schedule:
     - cron: '0 3 * * *' # nightly — site drift
     - cron: '0 6 * * 1' # Monday 06:00 UTC — accessibility

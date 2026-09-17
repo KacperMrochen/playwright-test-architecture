@@ -75,5 +75,8 @@ and deletes it afterwards.
 
 ## Status
 
-The criteria, plan, strategy and CI are in place. The tests themselves are
-being written now, starting with the shared fixture the rest depend on.
+The suite is in place: 50 tests cover all 66 criteria, across six
+Playwright projects (one API, five browser), and CI runs them in the three
+groups above. One requirement is still open — NFR-01, the accessibility
+scan, which needs a threshold nobody has yet measured against the live
+site.
