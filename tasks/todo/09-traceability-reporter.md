@@ -18,7 +18,9 @@ reporter rather than replacing it.
   at all, and any test naming an ID that doesn't exist in
   `docs/criteria/`. A criterion silently losing its test is the failure
   mode worth catching — `TESTING.md` states the traceability rule and
-  nothing currently enforces it.
+  nothing currently enforces it. Criteria the coverage map marks *manual*
+  are proven by a check in `manual-checks.md`, not a test: report them
+  apart, and never as missing.
 - **Name flaky tests as flaky.** A test that passed only on retry is
   reported separately from green, per the flake policy, since CI's single
   retry otherwise hides it.
@@ -38,7 +40,7 @@ there.
 
 - A deliberately unmapped criterion, and a test naming a made-up ID, both
   surface in the report.
-- The pre-merge job fails when a criterion has no test — the coverage
-  claim becomes enforced rather than documented.
+- The pre-merge job fails when a criterion has no test and isn't marked
+  manual — the coverage claim becomes enforced rather than documented.
 - The nightly job's `site-drift` issue body names the affected criteria.
 - The HTML report still works locally and in CI.

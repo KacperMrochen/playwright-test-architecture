@@ -306,10 +306,10 @@ The last two are the ones worth stating out loud: they're gaps our own
 decisions created, and a strategy that lists only what it automates
 quietly implies they don't exist.
 
-What's manual isn't left to memory — each check has a trigger, an owner, a
-timebox and a run log in
-[`manual-checks.md`](./manual-checks.md), plus the conditions that would
-promote it into the suite. A gap written down is a decision; a gap left
+What's manual isn't left to memory — each check names the criterion it
+proves, as a test does, and has a trigger, an owner, a timebox and a run
+log in [`manual-checks.md`](./manual-checks.md), plus the conditions that
+would promote it into the suite. A gap written down is a decision; a gap left
 out is an accident.
 
 ### Automating it isn't the same as running it everywhere

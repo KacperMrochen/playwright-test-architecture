@@ -9,7 +9,7 @@ layer, how often, and what each decision costs.
 
 | Document | What it answers |
 |---|---|
-| [`docs/criteria/`](docs/criteria/README.md) | How the site behaves — 22 requirements, 66 criteria, each verified against the live site |
+| [`docs/criteria/`](docs/criteria/README.md) | How the site behaves — 24 requirements, 69 criteria, each verified against the live site |
 | [`docs/testing/test-plan.md`](docs/testing/test-plan.md) | Which criterion is proven by which test, at which layer, in which pipeline stage |
 | [`docs/testing/test-strategy.md`](docs/testing/test-strategy.md) | Framework, project layout, browser matrix, pipeline, environments |
 | [`docs/testing/manual-checks.md`](docs/testing/manual-checks.md) | What isn't automated, why, and how it gets checked instead |
@@ -82,6 +82,6 @@ and deletes it afterwards.
 
 ## Status
 
-The suite is in place: 50 tests cover all 66 criteria, across six
+The suite is in place: 50 tests prove 66 of the 69 criteria, across six
 Playwright projects (one API, five browser), and CI runs them in the three
-groups above.
+groups above. The other three are checked by hand, on purpose.
