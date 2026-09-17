@@ -210,8 +210,8 @@ coverage — see Pipeline below for the command per group.
 
   | Group | Question | Trigger | Command | Scope |
   |---|---|---|---|---|
-  | Post-push (`Smoke`) | Does this change break the suite? | every PR push, drafts included | `npm run test:smoke:pr` | 5 smoke tests × `api`, `e2e-chromium`, `e2e-mobile-ios` |
-  | Pre-merge (`Regression`) | Same, wider | every PR push once out of draft; required to merge | `npm run test:regression:pr` | everything on `api` + `e2e-chromium`, smoke on the 3 gate projects |
+  | Post-push | Does this change break the suite? | every PR push, drafts included | `npm run test:smoke:pr` | 5 smoke tests × `api`, `e2e-chromium`, `e2e-mobile-ios` |
+  | Pre-merge | Same, wider | every PR push once out of draft; required to merge | `npm run test:regression:pr` | everything on `api` + `e2e-chromium`, smoke on the 3 gate projects |
   | Scheduled | Did the site change under us? | nightly (full matrix), Monday (a11y) | `npm test` / `npm run test:a11y` | the full 6-project matrix |
 
   **Why the engines sit in the nightly group.** Which browser breaks is a
@@ -222,7 +222,8 @@ coverage — see Pipeline below for the command per group.
   paths.
 
   **Pre-merge checks the code that gets merged.** The regression runs on
-  every push once a PR is out of draft, `main` requires it to pass, and a
+  every push once a PR is out of draft, `main` requires its check —
+  `Pre-merge regression` — to pass, and a
   PR has to be up to date with `main` before it merges — so the head that
   passed is the tree that lands. Two alternatives were rejected: GitHub's
   merge queue, which tests the merge result directly but needs a

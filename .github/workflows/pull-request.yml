@@ -42,7 +42,7 @@ jobs:
           fi
 
   smoke:
-    name: Smoke
+    name: Post-push smoke
     needs: changes
     # `!cancelled()` keeps this job from being skipped when `changes`
     # fails; only an explicit docs-only answer skips it.
@@ -63,7 +63,7 @@ jobs:
           retention-days: 30
 
   regression:
-    name: Regression
+    name: Pre-merge regression
     needs: changes
     if: ${{ !cancelled() && needs.changes.outputs.code != 'false' && !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
